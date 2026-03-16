@@ -4,6 +4,8 @@ const STATIC_ASSETS = [
   '/manifest.json',
   '/wasm/wasm_vex.js',
   '/wasm/wasm_vex_bg.wasm',
+  '/icon-192.png',
+  '/icon-512.png',
 ];
 
 self.addEventListener('install', (event) => {

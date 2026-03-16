@@ -19,7 +19,7 @@ COPY --from=rust-builder /app/src/lib/wasm ./src/lib/wasm
 # Copy rest of the app
 COPY . .
 
-RUN npm run build
+RUN npx next build --webpack
 
 # Stage 3: Run
 FROM node:20-slim

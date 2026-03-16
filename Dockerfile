@@ -4,8 +4,8 @@ RUN apt-get update && apt-get install -y binaryen curl
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
 WORKDIR /app
-COPY wasm-vex ./wasm-vex
-WORKDIR /app/wasm-vex
+COPY vex-verify ./vex-verify
+WORKDIR /app/vex-verify
 RUN wasm-pack build --target web --out-dir ../src/lib/wasm --out-name wasm_vex
 
 # Stage 2: Build Next.js

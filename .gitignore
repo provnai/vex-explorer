@@ -41,6 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 # rust / wasm
-/wasm-vex/target
-/wasm-vex/pkg
-/src/lib/wasm
+**/target/
+**/pkg/
+/src/lib/wasm/

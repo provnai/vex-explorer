@@ -396,6 +396,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
+name = "vex-verify"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "ed25519-dalek",
+ "getrandom",
+ "hex",
+ "serde",
+ "serde-wasm-bindgen",
+ "serde_jcs",
+ "serde_json",
+ "sha2",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "wasi"
 version = "0.11.1+wasi-snapshot-preview1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -444,22 +460,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "75a326b8c223ee17883a4251907455a2431acc2791c98c26279376490c378c16"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "wasm-vex"
-version = "0.1.0"
-dependencies = [
- "base64",
- "ed25519-dalek",
- "getrandom",
- "hex",
- "serde",
- "serde-wasm-bindgen",
- "serde_jcs",
- "serde_json",
- "sha2",
- "wasm-bindgen",
 ]
 
 [[package]]

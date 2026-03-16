@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "VEP Explorer | Sovereign Proof",
-  description: "Verify the mathematical integrity of VEX Evidence Capsules locally. Zero server-side visibility. 100% cryptographic proof.",
+  description: "Verify the cryptographic integrity of VEX Evidence Capsules locally. Zero server-side visibility. 100% cryptographic proof.",
   manifest: "/manifest.json",
 };
 

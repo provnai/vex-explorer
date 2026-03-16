@@ -361,7 +361,7 @@ export default function Home() {
             VEP Explorer
           </h1>
           <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
-            Verify the mathematical integrity of VEX Evidence Capsules locally.
+            Verify the cryptographic integrity of VEX Evidence Capsules locally.
             Zero server-side visibility. 100% cryptographic proof.
           </p>
         </header>

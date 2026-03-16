@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "wasm:build": "cd wasm-vex && wasm-pack build --target web --out-dir ../src/lib/wasm --out-name wasm_vex",
+    "wasm:build": "cd vex-verify && wasm-pack build --target web --out-dir ../src/lib/wasm --out-name wasm_vex",
     "build": "npm run wasm:build && next build --webpack",
     "start": "next start",
     "lint": "eslint"

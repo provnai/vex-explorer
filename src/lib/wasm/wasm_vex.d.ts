@@ -5,16 +5,13 @@
 */
 export function verify_test_vector(): any;
 /**
-* @param {string} _json_str
-* @param {Uint8Array} header_bytes
-* @returns {any}
+* @param {string} intent_hash
+* @param {string} authority_hash
+* @param {string} identity_hash
+* @param {string} witness_hash
+* @returns {string}
 */
-export function verify_capsule_json(_json_str: string, header_bytes: Uint8Array): any;
-/**
-* @param {Uint8Array} data
-* @returns {any}
-*/
-export function verify_capsule(data: Uint8Array): any;
+export function compute_capsule_root(intent_hash: string, authority_hash: string, identity_hash: string, witness_hash: string): string;
 /**
 * @param {Uint8Array} data
 * @returns {any}
@@ -30,13 +27,16 @@ export function parse_vep_header(data: Uint8Array): any;
 */
 export function verify_pillar_hashes(intent_hash: string, authority_hash: string, identity_hash: string, witness_hash: string, expected_root: string): any;
 /**
-* @param {string} intent_hash
-* @param {string} authority_hash
-* @param {string} identity_hash
-* @param {string} witness_hash
-* @returns {string}
+* @param {Uint8Array} data
+* @returns {any}
 */
-export function compute_capsule_root(intent_hash: string, authority_hash: string, identity_hash: string, witness_hash: string): string;
+export function verify_capsule(data: Uint8Array): any;
+/**
+* @param {string} _json_str
+* @param {Uint8Array} header_bytes
+* @returns {any}
+*/
+export function verify_capsule_json(_json_str: string, header_bytes: Uint8Array): any;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 

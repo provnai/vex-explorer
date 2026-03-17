@@ -1,6 +1,12 @@
 # 🧭 VEX Explorer: The Sovereign Forensic Dashboard
-## Verifiable Evidence Cross-examination (VEX) v1.5.0
-### [Live Deployment: explorer.provnai.com](https://explorer.provnai.com)
+## Verifiable Evidence Cross-examination (VEX) v1.5.1
+
+[![Crates.io](https://img.shields.io/crates/v/vex-verify.svg)](https://crates.io/crates/vex-verify)
+[![Downloads](https://img.shields.io/crates/d/vex-verify.svg?style=flat&color=success)](https://crates.io/crates/vex-verify)
+[![Website](https://img.shields.io/badge/website-provnai.com-00C7B7.svg)](https://provnai.com)
+
+[**Live Deployment: explorer.provnai.com**](https://explorer.provnai.com)
+
 
 The **VEX Explorer** is a high-assurance, client-side dashboard designed for the forensic audit of autonomous agent behavior. Built to serve as the "Sovereign Forensic Plane" of the CHORA-VEX governed execution ecosystem, it enables institutional auditors, developers, and safety researchers to mathematically verify the integrity, authority, and identity of agentic actions.
 

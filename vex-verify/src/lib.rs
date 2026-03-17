@@ -20,16 +20,16 @@ fn hash_leaf(data: &[u8]) -> String {
     hex::encode(hasher.finalize())
 }
 
-fn hash_internal(left: &str, right: &str) -> String {
+fn hash_internal(left: &str, right: &str) -> Result<String, String> {
     let mut hasher = Sha256::new();
     hasher.update(&[INTERNAL_PREFIX]);
-    hasher.update(hex::decode(left).unwrap_or_default());
-    hasher.update(hex::decode(right).unwrap_or_default());
-    hex::encode(hasher.finalize())
+    hasher.update(hex::decode(left).map_err(|e| e.to_string())?);
+    hasher.update(hex::decode(right).map_err(|e| e.to_string())?);
+    Ok(hex::encode(hasher.finalize()))
 }
 
-fn jcs_to_bytes<T: Serialize>(value: &T) -> Vec<u8> {
-    serde_jcs::to_vec(value).unwrap_or_default()
+fn jcs_to_bytes<T: Serialize>(value: &T) -> Result<Vec<u8>, String> {
+    serde_jcs::to_vec(value).map_err(|e| e.to_string())
 }
 
 fn compute_merkle_root(
@@ -37,14 +37,14 @@ fn compute_merkle_root(
     authority_data: &serde_json::Value,
     identity_data: &serde_json::Value,
     witness_data: &serde_json::Value,
-) -> String {
-    let h_intent = hash_leaf(&jcs_to_bytes(intent_data));
-    let h_auth = hash_leaf(&jcs_to_bytes(authority_data));
-    let h_ident = hash_leaf(&jcs_to_bytes(identity_data));
-    let h_witness = hash_leaf(&jcs_to_bytes(witness_data));
+) -> Result<String, String> {
+    let h_intent = hash_leaf(&jcs_to_bytes(intent_data)?);
+    let h_auth = hash_leaf(&jcs_to_bytes(authority_data)?);
+    let h_ident = hash_leaf(&jcs_to_bytes(identity_data)?);
+    let h_witness = hash_leaf(&jcs_to_bytes(witness_data)?);
 
-    let h12 = hash_internal(&h_intent, &h_auth);
-    let h34 = hash_internal(&h_ident, &h_witness);
+    let h12 = hash_internal(&h_intent, &h_auth)?;
+    let h34 = hash_internal(&h_ident, &h_witness)?;
 
     hash_internal(&h12, &h34)
 }
@@ -54,22 +54,37 @@ fn _compute_merkle_root_with_provided_hashes(
     authority_hash: Option<&str>,
     identity_hash: Option<&str>,
     witness_hash: Option<&str>,
-) -> String {
+) -> Result<String, String> {
     let h_intent = intent_hash
-        .map(|h| hash_leaf(&hex::decode(h).unwrap_or_default()))
-        .unwrap_or_default();
-    let h_auth = authority_hash
-        .map(|h| hash_leaf(&hex::decode(h).unwrap_or_default()))
-        .unwrap_or_default();
-    let h_ident = identity_hash
-        .map(|h| hash_leaf(&hex::decode(h).unwrap_or_default()))
-        .unwrap_or_default();
-    let h_witness = witness_hash
-        .map(|h| hash_leaf(&hex::decode(h).unwrap_or_default()))
+        .map(|h| -> Result<String, String> {
+            Ok(hash_leaf(&hex::decode(h).map_err(|e| e.to_string())?))
+        })
+        .transpose()?
         .unwrap_or_default();
 
-    let h12 = hash_internal(&hex::encode(&h_intent), &hex::encode(&h_auth));
-    let h34 = hash_internal(&hex::encode(&h_ident), &hex::encode(&h_witness));
+    let h_auth = authority_hash
+        .map(|h| -> Result<String, String> {
+            Ok(hash_leaf(&hex::decode(h).map_err(|e| e.to_string())?))
+        })
+        .transpose()?
+        .unwrap_or_default();
+
+    let h_ident = identity_hash
+        .map(|h| -> Result<String, String> {
+            Ok(hash_leaf(&hex::decode(h).map_err(|e| e.to_string())?))
+        })
+        .transpose()?
+        .unwrap_or_default();
+
+    let h_witness = witness_hash
+        .map(|h| -> Result<String, String> {
+            Ok(hash_leaf(&hex::decode(h).map_err(|e| e.to_string())?))
+        })
+        .transpose()?
+        .unwrap_or_default();
+
+    let h12 = hash_internal(&h_intent, &h_auth)?;
+    let h34 = hash_internal(&h_ident, &h_witness)?;
 
     hash_internal(&h12, &h34)
 }
@@ -209,7 +224,7 @@ pub fn compute_capsule_root(
     authority_hash: &str,
     identity_hash: &str,
     witness_hash: &str,
-) -> String {
+) -> Result<String, String> {
     let composite = CompositeRoot {
         authority_hash: authority_hash.to_string(),
         identity_hash: identity_hash.to_string(),
@@ -217,10 +232,10 @@ pub fn compute_capsule_root(
         witness_hash: witness_hash.to_string(),
     };
 
-    let jcs_bytes = serde_jcs::to_vec(&composite).unwrap();
+    let jcs_bytes = serde_jcs::to_vec(&composite).map_err(|e| e.to_string())?;
     let mut hasher = Sha256::new();
     hasher.update(&jcs_bytes);
-    hex::encode(hasher.finalize())
+    Ok(hex::encode(hasher.finalize()))
 }
 
 #[wasm_bindgen]
@@ -231,7 +246,22 @@ pub fn verify_pillar_hashes(
     witness_hash: &str,
     expected_root: &str,
 ) -> JsValue {
-    let computed = compute_capsule_root(intent_hash, authority_hash, identity_hash, witness_hash);
+    let computed = match compute_capsule_root(intent_hash, authority_hash, identity_hash, witness_hash) {
+        Ok(c) => c,
+        Err(e) => {
+            let obj = serde_json::json!({
+                "valid": false,
+                "error": format!("Hash computation error: {}", e),
+                "intent_hash": intent_hash,
+                "authority_hash": authority_hash,
+                "identity_hash": identity_hash,
+                "witness_hash": witness_hash,
+                "computed_root": serde_json::Value::Null,
+                "expected_root": expected_root
+            });
+            return to_js_obj(&obj);
+        }
+    };
 
     let valid = computed == expected_root;
 
@@ -545,29 +575,6 @@ pub fn verify_capsule(data: &[u8]) -> JsValue {
     let clean_identity = remove_null_fields(&identity);
     let clean_witness = remove_null_fields(&witness);
 
-    let computed_root = if version >= 3 {
-        compute_merkle_root(
-            &clean_intent,
-            &clean_authority,
-            &clean_identity,
-            &clean_witness,
-        )
-    } else {
-        compute_capsule_root(
-            &intent_hash_to_use,
-            &authority_hash,
-            &identity_hash,
-            &witness_hash_to_use,
-        )
-    };
-
-    let expected_root = header_value["capsule_root"].as_str().unwrap_or("");
-    let root_valid = computed_root == expected_root;
-
-    let signature_valid = verify_signature_internal(&crypto, expected_root);
-
-    let valid = root_valid && signature_valid;
-
     let header_obj = serde_json::json!({
         "magic": header_value.get("magic").and_then(|v| v.as_str()).unwrap_or(""),
         "version": header_value.get("version").and_then(|v| v.as_u64()).unwrap_or(0) as u8,
@@ -575,17 +582,6 @@ pub fn verify_capsule(data: &[u8]) -> JsValue {
         "capsule_root": header_value.get("capsule_root").and_then(|v| v.as_str()).unwrap_or(""),
         "nonce": header_value.get("nonce").and_then(|v| v.as_u64()).unwrap_or(0)
     });
-
-    let error_msg = if !root_valid {
-        Some(format!(
-            "Root mismatch: computed {} != expected {}",
-            computed_root, expected_root
-        ))
-    } else if !signature_valid {
-        Some("Signature verification failed".to_string())
-    } else {
-        None
-    };
 
     let pillar_status = if version >= 3 {
         serde_json::json!({
@@ -601,6 +597,69 @@ pub fn verify_capsule(data: &[u8]) -> JsValue {
             "identity": !identity_hash.is_empty(),
             "witness": !witness_hash.is_empty()
         })
+    };
+
+    let expected_root = header_value["capsule_root"].as_str().unwrap_or("");
+
+    let computed_root_res = if version >= 3 {
+        compute_merkle_root(
+            &clean_intent,
+            &clean_authority,
+            &clean_identity,
+            &clean_witness,
+        )
+    } else {
+        compute_capsule_root(
+            &intent_hash_to_use,
+            &authority_hash,
+            &identity_hash,
+            &witness_hash_to_use,
+        )
+    };
+
+    let computed_root = match computed_root_res {
+        Ok(r) => r,
+        Err(e) => {
+            let obj = serde_json::json!({
+                "valid": false,
+                "error": format!("Merkle root error: {}", e),
+                "header": header_obj,
+                "intent_hash": intent_hash_to_use,
+                "authority_hash": authority_hash,
+                "identity_hash": identity_hash,
+                "witness_hash": witness_hash_to_use,
+                "computed_root": serde_json::Value::Null,
+                "expected_root": expected_root,
+                "intent": intent,
+                "authority": authority,
+                "identity": identity,
+                "witness": witness,
+                "crypto": crypto,
+                "signature_valid": false,
+                "version": version,
+                "merkle_tree": version >= 3,
+                "pillar_status": pillar_status
+            });
+            return to_js_obj(&obj);
+        }
+    };
+
+    let expected_root = header_value["capsule_root"].as_str().unwrap_or("");
+    let root_valid = computed_root == expected_root;
+
+    let signature_valid = verify_signature_internal(&crypto, expected_root);
+
+    let valid = root_valid && signature_valid;
+
+    let error_msg = if !root_valid {
+        Some(format!(
+            "Root mismatch: computed {} != expected {}",
+            computed_root, expected_root
+        ))
+    } else if !signature_valid {
+        Some("Signature verification failed".to_string())
+    } else {
+        None
     };
 
     let obj = serde_json::json!({
@@ -691,4 +750,82 @@ fn verify_signature_internal(crypto: &serde_json::Value, message: &str) -> bool 
 #[wasm_bindgen]
 pub fn verify_capsule_json(_json_str: &str, header_bytes: &[u8]) -> JsValue {
     verify_capsule(header_bytes)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_hash_leaf() {
+        let data = b"test";
+        let h = hash_leaf(data);
+        assert!(!h.is_empty());
+    }
+
+    #[test]
+    fn test_hash_internal() {
+        let h1 = hash_leaf(b"left");
+        let h2 = hash_leaf(b"right");
+        let root = hash_internal(&h1, &h2).unwrap();
+        assert!(!root.is_empty());
+        assert_ne!(root, h1);
+    }
+
+    #[test]
+    fn test_merkle_root_computation() {
+        let intent = serde_json::json!({"v": 1});
+        let authority = serde_json::json!({"v": 2});
+        let identity = serde_json::json!({"v": 3});
+        let witness = serde_json::json!({"v": 4});
+
+        let root = compute_merkle_root(&intent, &authority, &identity, &witness).unwrap();
+        assert_eq!(root.len(), 64); // SHA-256 hex string
+    }
+
+    #[test]
+    fn test_vep_footer_parsing() {
+        let mut data = vec![0u8; 100];
+        let footer_start = 100 - 76;
+        data[footer_start..footer_start+3].copy_from_slice(b"VEP");
+        data[footer_start+3] = 3;
+        
+        // Fill some hex and nonce
+        // aid at 4..36
+        // capsule_root at 36..68
+        // nonce at 68..76
+        
+        let res = parse_vep_footer(&data);
+        assert!(res.is_ok());
+        let (magic, version, _, _, _) = res.unwrap();
+        assert_eq!(magic, "VEP");
+        assert_eq!(version, 3);
+    }
+
+    #[test]
+    fn test_jcs_to_bytes() {
+        let val = serde_json::json!({"b": 2, "a": 1});
+        let bytes = jcs_to_bytes(&val).unwrap();
+        // JCS should sort keys: {"a":1,"b":2}
+        assert_eq!(std::str::from_utf8(&bytes).unwrap(), "{\"a\":1,\"b\":2}");
+    }
+
+    #[test]
+    fn test_remove_null_fields() {
+        let val = serde_json::json!({
+            "a": 1,
+            "b": null,
+            "c": {
+                "d": null,
+                "e": 2
+            }
+        });
+        let cleaned = remove_null_fields(&val);
+        assert_eq!(cleaned, serde_json::json!({
+            "a": 1,
+            "c": {
+                "e": 2
+            }
+        }));
+    }
 }

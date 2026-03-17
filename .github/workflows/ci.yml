@@ -33,5 +33,22 @@ jobs:
     - name: Build WASM
       run: npm run wasm:build
 
+    - name: Run Rust tests
+      run: cd vex-verify && cargo test
+
+    - name: Run Lint
+      run: npm run lint
+
+    - name: Security Audit
+      run: npm audit --audit-level=high
+
     - name: Build Next.js
       run: npm run build
+
+    - name: Check Bundle Size
+      run: |
+        SIZE=$(du -sk .next/static | cut -f1)
+        echo "Static assets size: ${SIZE}KB"
+        if [ $SIZE -gt 1024 ]; then
+          echo "Warning: Bundle size exceeds 1MB budget!"
+        fi

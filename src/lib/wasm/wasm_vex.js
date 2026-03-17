@@ -206,37 +206,52 @@ export function verify_test_vector() {
     return takeObject(ret);
 }
 
+/**
+* @param {string} intent_hash
+* @param {string} authority_hash
+* @param {string} identity_hash
+* @param {string} witness_hash
+* @returns {string}
+*/
+export function compute_capsule_root(intent_hash, authority_hash, identity_hash, witness_hash) {
+    let deferred6_0;
+    let deferred6_1;
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        const ptr0 = passStringToWasm0(intent_hash, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(authority_hash, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(identity_hash, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ptr3 = passStringToWasm0(witness_hash, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len3 = WASM_VECTOR_LEN;
+        wasm.compute_capsule_root(retptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var r2 = getInt32Memory0()[retptr / 4 + 2];
+        var r3 = getInt32Memory0()[retptr / 4 + 3];
+        var ptr5 = r0;
+        var len5 = r1;
+        if (r3) {
+            ptr5 = 0; len5 = 0;
+            throw takeObject(r2);
+        }
+        deferred6_0 = ptr5;
+        deferred6_1 = len5;
+        return getStringFromWasm0(ptr5, len5);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        wasm.__wbindgen_free(deferred6_0, deferred6_1, 1);
+    }
+}
+
 function passArray8ToWasm0(arg, malloc) {
     const ptr = malloc(arg.length * 1, 1) >>> 0;
     getUint8Memory0().set(arg, ptr / 1);
     WASM_VECTOR_LEN = arg.length;
     return ptr;
 }
-/**
-* @param {string} _json_str
-* @param {Uint8Array} header_bytes
-* @returns {any}
-*/
-export function verify_capsule_json(_json_str, header_bytes) {
-    const ptr0 = passStringToWasm0(_json_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passArray8ToWasm0(header_bytes, wasm.__wbindgen_malloc);
-    const len1 = WASM_VECTOR_LEN;
-    const ret = wasm.verify_capsule_json(ptr0, len0, ptr1, len1);
-    return takeObject(ret);
-}
-
-/**
-* @param {Uint8Array} data
-* @returns {any}
-*/
-export function verify_capsule(data) {
-    const ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ret = wasm.verify_capsule(ptr0, len0);
-    return takeObject(ret);
-}
-
 /**
 * @param {Uint8Array} data
 * @returns {any}
@@ -283,35 +298,28 @@ export function verify_pillar_hashes(intent_hash, authority_hash, identity_hash,
 }
 
 /**
-* @param {string} intent_hash
-* @param {string} authority_hash
-* @param {string} identity_hash
-* @param {string} witness_hash
-* @returns {string}
+* @param {Uint8Array} data
+* @returns {any}
 */
-export function compute_capsule_root(intent_hash, authority_hash, identity_hash, witness_hash) {
-    let deferred5_0;
-    let deferred5_1;
-    try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        const ptr0 = passStringToWasm0(intent_hash, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(authority_hash, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len1 = WASM_VECTOR_LEN;
-        const ptr2 = passStringToWasm0(identity_hash, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len2 = WASM_VECTOR_LEN;
-        const ptr3 = passStringToWasm0(witness_hash, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len3 = WASM_VECTOR_LEN;
-        wasm.compute_capsule_root(retptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3);
-        var r0 = getInt32Memory0()[retptr / 4 + 0];
-        var r1 = getInt32Memory0()[retptr / 4 + 1];
-        deferred5_0 = r0;
-        deferred5_1 = r1;
-        return getStringFromWasm0(r0, r1);
-    } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-        wasm.__wbindgen_free(deferred5_0, deferred5_1, 1);
-    }
+export function verify_capsule(data) {
+    const ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.verify_capsule(ptr0, len0);
+    return takeObject(ret);
+}
+
+/**
+* @param {string} _json_str
+* @param {Uint8Array} header_bytes
+* @returns {any}
+*/
+export function verify_capsule_json(_json_str, header_bytes) {
+    const ptr0 = passStringToWasm0(_json_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passArray8ToWasm0(header_bytes, wasm.__wbindgen_malloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ret = wasm.verify_capsule_json(ptr0, len0, ptr1, len1);
+    return takeObject(ret);
 }
 
 function handleError(f, args) {

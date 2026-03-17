@@ -22,12 +22,17 @@ COPY . .
 RUN npx next build --webpack
 
 # Stage 3: Run
-FROM node:20-slim
+FROM gcr.io/distroless/nodejs20-debian12
 WORKDIR /app
-COPY --from=node-builder /app/.next ./.next
+
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Copy standalone build and assets
 COPY --from=node-builder /app/public ./public
-COPY --from=node-builder /app/package*.json ./
-COPY --from=node-builder /app/node_modules ./node_modules
+COPY --from=node-builder /app/.next/standalone ./
+COPY --from=node-builder /app/.next/static ./.next/static
 
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["server.js"]

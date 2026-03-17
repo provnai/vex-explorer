@@ -5,6 +5,10 @@ import { useEffect } from "react";
 export function ServiceWorkerRegistration() {
   useEffect(() => {
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+      if (window.location.protocol !== "https:" && window.location.hostname !== "localhost") {
+        console.warn("Service Worker registration skipped: Not on HTTPS");
+        return;
+      }
       navigator.serviceWorker
         .register("/sw.js")
         .then((registration) => {

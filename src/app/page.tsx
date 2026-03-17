@@ -327,6 +327,11 @@ export default function Home() {
       await new Promise((r) => setTimeout(r, 400));
 
       const result = verify_test_vector();
+      console.log("Test vector result:", result);
+
+      if (!result.valid) {
+        console.error("Test vector validation failed:", result.error);
+      }
 
       setState({
         status: result.valid ? "verified" : "error",

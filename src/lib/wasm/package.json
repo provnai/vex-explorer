@@ -1,0 +1,31 @@
+{
+  "name": "vex-verify",
+  "type": "module",
+  "collaborators": [
+    "ProvnAI <engineering@provnai.com>"
+  ],
+  "description": "Lightweight cryptographic verification engine for the VEX protocol",
+  "version": "0.1.2",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/provnai/vex-explorer"
+  },
+  "files": [
+    "wasm_vex_bg.wasm",
+    "wasm_vex.js",
+    "wasm_vex.d.ts"
+  ],
+  "main": "wasm_vex.js",
+  "types": "wasm_vex.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ],
+  "keywords": [
+    "vex",
+    "forensics",
+    "cryptography",
+    "wasm",
+    "verification"
+  ]
+}

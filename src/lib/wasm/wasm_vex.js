@@ -198,6 +198,13 @@ function debugString(val) {
     // TODO we could test for more things here, like `Set`s and `Map`s.
     return className;
 }
+/**
+* @returns {any}
+*/
+export function verify_test_vector() {
+    const ret = wasm.verify_test_vector();
+    return takeObject(ret);
+}
 
 function passArray8ToWasm0(arg, malloc) {
     const ptr = malloc(arg.length * 1, 1) >>> 0;
@@ -205,6 +212,31 @@ function passArray8ToWasm0(arg, malloc) {
     WASM_VECTOR_LEN = arg.length;
     return ptr;
 }
+/**
+* @param {string} _json_str
+* @param {Uint8Array} header_bytes
+* @returns {any}
+*/
+export function verify_capsule_json(_json_str, header_bytes) {
+    const ptr0 = passStringToWasm0(_json_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passArray8ToWasm0(header_bytes, wasm.__wbindgen_malloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ret = wasm.verify_capsule_json(ptr0, len0, ptr1, len1);
+    return takeObject(ret);
+}
+
+/**
+* @param {Uint8Array} data
+* @returns {any}
+*/
+export function verify_capsule(data) {
+    const ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.verify_capsule(ptr0, len0);
+    return takeObject(ret);
+}
+
 /**
 * @param {Uint8Array} data
 * @returns {any}
@@ -247,39 +279,6 @@ export function verify_pillar_hashes(intent_hash, authority_hash, identity_hash,
     const ptr4 = passStringToWasm0(expected_root, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     const len4 = WASM_VECTOR_LEN;
     const ret = wasm.verify_pillar_hashes(ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4);
-    return takeObject(ret);
-}
-
-/**
-* @returns {any}
-*/
-export function verify_test_vector() {
-    const ret = wasm.verify_test_vector();
-    return takeObject(ret);
-}
-
-/**
-* @param {string} _json_str
-* @param {Uint8Array} header_bytes
-* @returns {any}
-*/
-export function verify_capsule_json(_json_str, header_bytes) {
-    const ptr0 = passStringToWasm0(_json_str, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passArray8ToWasm0(header_bytes, wasm.__wbindgen_malloc);
-    const len1 = WASM_VECTOR_LEN;
-    const ret = wasm.verify_capsule_json(ptr0, len0, ptr1, len1);
-    return takeObject(ret);
-}
-
-/**
-* @param {Uint8Array} data
-* @returns {any}
-*/
-export function verify_capsule(data) {
-    const ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ret = wasm.verify_capsule(ptr0, len0);
     return takeObject(ret);
 }
 

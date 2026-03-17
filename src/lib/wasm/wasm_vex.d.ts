@@ -1,20 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* @param {Uint8Array} data
-* @returns {any}
-*/
-export function parse_vep_header(data: Uint8Array): any;
-/**
-* @param {string} intent_hash
-* @param {string} authority_hash
-* @param {string} identity_hash
-* @param {string} witness_hash
-* @param {string} expected_root
-* @returns {any}
-*/
-export function verify_pillar_hashes(intent_hash: string, authority_hash: string, identity_hash: string, witness_hash: string, expected_root: string): any;
-/**
 * @returns {any}
 */
 export function verify_test_vector(): any;
@@ -29,6 +15,20 @@ export function verify_capsule_json(_json_str: string, header_bytes: Uint8Array)
 * @returns {any}
 */
 export function verify_capsule(data: Uint8Array): any;
+/**
+* @param {Uint8Array} data
+* @returns {any}
+*/
+export function parse_vep_header(data: Uint8Array): any;
+/**
+* @param {string} intent_hash
+* @param {string} authority_hash
+* @param {string} identity_hash
+* @param {string} witness_hash
+* @param {string} expected_root
+* @returns {any}
+*/
+export function verify_pillar_hashes(intent_hash: string, authority_hash: string, identity_hash: string, witness_hash: string, expected_root: string): any;
 /**
 * @param {string} intent_hash
 * @param {string} authority_hash

@@ -8,6 +8,11 @@ use wasm_bindgen::prelude::*;
 const LEAF_PREFIX: u8 = 0x00;
 const INTERNAL_PREFIX: u8 = 0x01;
 
+fn to_js_obj<T: Serialize>(value: &T) -> JsValue {
+    let serializer = serde_wasm_bindgen::Serializer::json_compatible();
+    value.serialize(&serializer).unwrap()
+}
+
 fn hash_leaf(data: &[u8]) -> String {
     let mut hasher = Sha256::new();
     hasher.update(&[LEAF_PREFIX]);
@@ -187,7 +192,7 @@ pub fn parse_vep_header(data: &[u8]) -> Result<JsValue, JsValue> {
         "nonce": nonce
     });
 
-    Ok(serde_wasm_bindgen::to_value(&obj)?)
+    Ok(to_js_obj(&obj))
 }
 
 #[derive(Serialize)]
@@ -241,7 +246,7 @@ pub fn verify_pillar_hashes(
         "expected_root": expected_root
     });
 
-    serde_wasm_bindgen::to_value(&obj).unwrap()
+    to_js_obj(&obj)
 }
 
 fn extract_json_from_binary(data: &[u8]) -> Result<serde_json::Value, String> {
@@ -351,7 +356,7 @@ pub fn verify_test_vector() -> JsValue {
         }
     });
 
-    serde_wasm_bindgen::to_value(&obj).unwrap()
+    to_js_obj(&obj)
 }
 
 #[wasm_bindgen]
@@ -366,7 +371,7 @@ pub fn verify_capsule(data: &[u8]) -> JsValue {
                 "nonce": nonce,
                 "format": "footer"
             });
-            (serde_wasm_bindgen::to_value(&obj).unwrap(), version)
+            (to_js_obj(&obj), version)
         }
         Err(_) => match parse_vep_header(data) {
             Ok(h) => {
@@ -392,7 +397,7 @@ pub fn verify_capsule(data: &[u8]) -> JsValue {
                     "crypto": serde_json::Value::Null,
                     "signature_valid": false
                 });
-                return serde_wasm_bindgen::to_value(&obj).unwrap();
+            return to_js_obj(&obj);
             }
         },
     };
@@ -417,7 +422,7 @@ pub fn verify_capsule(data: &[u8]) -> JsValue {
                 "crypto": serde_json::Value::Null,
                 "signature_valid": false
             });
-            return serde_wasm_bindgen::to_value(&obj).unwrap();
+            return to_js_obj(&obj);
         }
     };
 
@@ -441,7 +446,7 @@ pub fn verify_capsule(data: &[u8]) -> JsValue {
                 "crypto": serde_json::Value::Null,
                 "signature_valid": false
             });
-            return serde_wasm_bindgen::to_value(&obj).unwrap();
+            return to_js_obj(&obj);
         }
     };
 
@@ -619,7 +624,7 @@ pub fn verify_capsule(data: &[u8]) -> JsValue {
         "pillar_status": pillar_status
     });
 
-    serde_wasm_bindgen::to_value(&obj).unwrap()
+    to_js_obj(&obj)
 }
 
 fn verify_signature_internal(crypto: &serde_json::Value, message: &str) -> bool {

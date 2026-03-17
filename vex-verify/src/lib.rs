@@ -340,7 +340,15 @@ pub fn verify_test_vector() -> JsValue {
         "identity": identity_data,
         "witness": witness_data,
         "crypto": crypto_data,
-        "signature_valid": true
+        "signature_valid": true,
+        "version": 3,
+        "merkle_tree": true,
+        "pillar_status": {
+            "intent": true,
+            "authority": true,
+            "identity": true,
+            "witness": true
+        }
     });
 
     serde_wasm_bindgen::to_value(&obj).unwrap()
